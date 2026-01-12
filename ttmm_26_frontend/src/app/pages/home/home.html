@@ -1,0 +1,60 @@
+<div class="hero-section">
+    <div class="hero-inner container text-center">
+        <div class="stat-label">{{ startupName }}</div>
+        
+        <div class="big-number-wrapper">
+            <div class="big-number-label">Current Bid Amount</div>
+            
+            <div class="big-number">
+                <span class="big-number-currency">INR</span>
+                
+                <span class="big-number-value">{{ displayedSum }}</span>
+                
+                <span class="big-number-unit">Lakhs</span>
+            </div>
+        </div>
+  
+        <div class="progress-wrapper mt-3">
+            <div class="progress-header">
+                <span>0</span>
+                <span class="goal">50 Lakhs</span>
+            </div>
+  
+            <div class="progress-container">
+                <div class="progress-bar-glow"></div>
+                <div class="progress-bar" role="progressbar" 
+                     [style.width.%]="progressPercentage">
+                    <span>{{ progressPercentage | number:'1.0-0' }}%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+  </div>
+  
+  <div class="container pb-5">
+    <div class="section-title">
+        CONTRIBUTORS
+    </div>
+  
+    <div class="row justify-content-center">
+        <div *ngFor="let u of contributors" class="col-12 col-md-6 col-lg-4 mb-4">
+            <div class="contributor-card">
+                <div class="img-wrapper">
+                    <img *ngIf="u.image" [src]="api.getImageUrl(u.image)" class="profile-img">
+                    <div *ngIf="!u.image" class="profile-placeholder">
+                        {{ u.name.charAt(0).toUpperCase() }}
+                    </div>
+                </div>
+  
+                <div class="text-wrapper ms-3">
+                    <h4 class="username-text">{{ u.name }}</h4>
+                    <div class="user-meta">Contributor</div>
+                </div>
+            </div>
+        </div>
+  
+        <div *ngIf="contributors.length === 0" class="text-center text-muted col-12">
+            <p>Waiting for the first bid...</p>
+        </div>
+    </div>
+  </div>

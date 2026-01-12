@@ -1,0 +1,143 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4 px-4">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold" href="#">TTMM 26</a>
+        <a routerLink="/home" class="btn btn-outline-light btn-sm ms-3">View Public Board</a>
+        <div class="d-flex align-items-center ms-auto">
+            <span class="text-light fw-bold me-3">{{ username }}</span>
+            <button (click)="logout()" class="btn btn-danger btn-sm">Logout</button>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    
+    <div *ngIf="!portalData" class="text-center mt-5">
+        <div class="spinner-border text-primary" role="status"></div>
+        <p class="mt-2 text-muted">Connecting to Portal Control...</p>
+    </div>
+
+    <div *ngIf="portalData" class="row">
+        
+        <div class="col-md-5 mb-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-header bg-primary text-white py-3">
+                    <h5 class="mb-0 fw-bold">
+                        <span *ngIf="portalData.startup_name">
+                            Bid for {{ portalData.startup_name }}
+                        </span>
+                        <span *ngIf="!portalData.startup_name">Waiting for Pitch...</span>
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    
+                    <div *ngIf="portalData.current_scene === 1 && portalData.allow_bids && portalData.startup_name; else closedTemplate">
+                        
+                        <div class="mb-4 text-center">
+                            <label class="form-label text-secondary small fw-bold mb-3" style="letter-spacing: 1px;">
+                                SELECT INVESTMENT AMOUNT
+                            </label>
+                            
+                            <h1 class="display-2 fw-bold text-primary mb-2">
+                                ₹{{ bidInput }} <span class="fs-4 text-dark">Lakhs</span>
+                            </h1>
+
+                            <input type="range" class="form-range" 
+                                   min="0" max="100" step="1" 
+                                   [(ngModel)]="bidInput"
+                                   style="height: 20px;">
+                                   
+                            <div class="d-flex justify-content-between text-muted small mt-2">
+                                <span>0L</span>
+                                <span>50L</span>
+                                <span>100L</span>
+                            </div>
+                        </div>
+
+                        <button (click)="submitBid()" class="btn btn-primary w-100 btn-lg shadow-sm">
+                            {{ myCurrentBid > 0 ? 'Update Contribution' : 'Submit Contribution' }}
+                        </button>
+                        
+                        <div *ngIf="message" class="alert alert-success mt-3 text-center py-2">{{ message }}</div>
+                        
+                        <div class="mt-4 text-center border-top pt-3">
+                            <span class="text-muted">Your current position:</span>
+                            <strong class="fs-5 text-dark ms-2">{{ myCurrentBid }} Lakhs</strong>
+                        </div>
+                    </div>
+
+                    <ng-template #closedTemplate>
+                        <div class="text-center py-4">
+                            <div class="mb-3 text-warning">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-lock-fill" viewBox="0 0 16 16">
+                                    <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/>
+                                </svg>
+                            </div>
+                            
+                            <div *ngIf="portalData.current_scene === 2; else standardClosed">
+                                <h5>Bidding Completed</h5>
+                                <p class="text-muted mb-0">The round for this startup has ended.</p>
+                            </div>
+
+                            <ng-template #standardClosed>
+                                <h5>Bidding Closed</h5>
+                                <p class="text-muted mb-0">Bidding is paused or no startup is on stage.</p>
+                            </ng-template>
+                        </div>
+                    </ng-template>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-7 mb-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-header bg-white py-3 border-bottom">
+                    <h5 class="mb-0 fw-bold">Your Portfolio</h5>
+                </div>
+                <div class="card-body p-0">
+                    
+                    <div *ngIf="isLoadingHistory" class="text-center py-5">
+                        <div class="spinner-border text-secondary" role="status"></div>
+                        <p class="text-muted mt-2 mb-0">Loading portfolio...</p>
+                    </div>
+
+                    <div *ngIf="!isLoadingHistory" class="list-group list-group-flush">
+                        
+                        <div *ngFor="let item of myHistory" class="list-group-item d-flex justify-content-between align-items-center py-3 px-4">
+                            <div>
+                                <h4 class="mb-1 fw-bold">₹ {{ item.funding }} Lakhs</h4>
+                                <div class="text-muted">
+                                    Invested in: <strong class="text-dark">{{ item.startup.name }}</strong>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <span *ngIf="item.startup.id === portalData.current_startup && portalData.current_scene === 1 && portalData.allow_bids" 
+                                      class="badge bg-success rounded-pill px-3 py-2">
+                                    Active
+                                </span>
+
+                                <span *ngIf="item.startup.id === portalData.current_startup && portalData.current_scene === 2" 
+                                      class="badge bg-dark rounded-pill px-3 py-2">
+                                    Bidding Completed
+                                </span>
+
+                                <span *ngIf="item.startup.id !== portalData.current_startup" 
+                                      class="badge bg-secondary rounded-pill px-3 py-2">
+                                    Closed
+                                </span>
+                            </div>
+
+                        </div>
+                        
+                        <div *ngIf="myHistory.length === 0" class="text-center py-5 text-muted">
+                            <p class="mb-0">You haven't made any investments yet.</p>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
